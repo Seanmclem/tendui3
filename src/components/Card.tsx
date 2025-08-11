@@ -7,12 +7,12 @@ interface CardProps {
   padding?: "sm" | "md" | "lg";
 }
 
-const Card: React.FC<CardProps> = ({
+const Card = ({
   children,
   title,
   className = "",
   padding = "md",
-}) => {
+}: CardProps) => {
   const paddingClasses = {
     sm: "p-3",
     md: "p-6",

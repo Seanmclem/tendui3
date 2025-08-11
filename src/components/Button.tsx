@@ -9,14 +9,14 @@ interface ButtonProps {
   className?: string;
 }
 
-const Button: React.FC<ButtonProps> = ({
+const Button = ({
   children,
   onClick,
   variant = "primary",
   size = "md",
   disabled = false,
   className = "",
-}) => {
+}: ButtonProps) => {
   const baseClasses =
     "font-semibold rounded transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";
 

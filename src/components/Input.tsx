@@ -1,5 +1,3 @@
-import React from "react";
-
 interface InputProps {
   type?: "text" | "email" | "password" | "number";
   placeholder?: string;
@@ -11,7 +9,7 @@ interface InputProps {
   className?: string;
 }
 
-const Input: React.FC<InputProps> = ({
+const Input = ({
   type = "text",
   placeholder,
   value = "",
@@ -20,7 +18,7 @@ const Input: React.FC<InputProps> = ({
   error,
   disabled = false,
   className = "",
-}) => {
+}: InputProps) => {
   const baseClasses =
     "w-full px-3 py-2 border rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
   const errorClasses = error
