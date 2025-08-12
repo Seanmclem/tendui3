@@ -1,6 +1,7 @@
 import React from "react";
 import { useSidebarStore } from "../../stores/sidebarStore";
 import { Button, Card, Input, Badge } from "../../components";
+import { TerminalManager } from "../terminals";
 
 const MainArea = () => {
   const { activeItemId, getActiveItem } = useSidebarStore();
@@ -19,6 +20,23 @@ const MainArea = () => {
   }
 
   const { content } = activeItem;
+
+  // Special handling for terminals page
+  if (activeItem.id === "terminals") {
+    return (
+      <div className="min-h-full h-full">
+        <div className="p-4">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            💻 Terminals
+          </h2>
+          <TerminalManager
+            pageType="terminals"
+            className="h-[calc(100vh-120px)]"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full">
