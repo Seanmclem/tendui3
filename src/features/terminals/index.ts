@@ -1,2 +1,2 @@
 export { default as TerminalManager } from "./TerminalManager";
-export { TerminalComponent } from "./TerminalComponent";
+export { default as TerminalComponent } from "./TerminalComponent";

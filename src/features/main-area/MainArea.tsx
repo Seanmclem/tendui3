@@ -21,17 +21,27 @@ const MainArea = () => {
 
   const { content } = activeItem;
 
-  // Special handling for terminals page
-  if (activeItem.id === "terminals") {
+  // Pages that should have terminals
+  const pagesWithTerminals = [
+    "terminals",
+    "files",
+    "git",
+    "calculator",
+    "converter",
+    "generator",
+  ];
+
+  if (pagesWithTerminals.includes(activeItem.id)) {
     return (
       <div className="min-h-full h-full">
         <div className="p-4">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            💻 Terminals
+            {content.title}
           </h2>
+          <p className="text-gray-600 mb-4">{content.description}</p>
           <TerminalManager
-            pageType="terminals"
-            className="h-[calc(100vh-120px)]"
+            pageType={activeItem.id}
+            className="h-[calc(100vh-180px)]"
           />
         </div>
       </div>

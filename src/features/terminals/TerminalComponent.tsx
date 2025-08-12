@@ -10,7 +10,7 @@ interface TerminalComponentProps {
   style?: React.CSSProperties;
 }
 
-export const TerminalComponent = ({
+const TerminalComponent = ({
   terminalId,
   isActive,
   onRemove,
@@ -19,6 +19,7 @@ export const TerminalComponent = ({
   const terminalRef = useRef<HTMLDivElement>(null);
   const [term, setTerm] = useState<Terminal | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const { setTerminalReady } = useMainGuiStore();
 
   useEffect(() => {
@@ -35,14 +36,6 @@ export const TerminalComponent = ({
       // Open terminal in the DOM element
       newTerm.open(terminalRef.current);
       setTerm(newTerm);
-
-      // Resize terminal to fit container
-      const resizeObserver = new ResizeObserver(() => {
-        newTerm.resize(80, 30);
-      });
-      if (terminalRef.current) {
-        resizeObserver.observe(terminalRef.current);
-      }
 
       // Create the terminal process on the main process
       window.Main.createTerminal(terminalId);
@@ -69,6 +62,37 @@ export const TerminalComponent = ({
     }
   }, [isMounted, terminalId, setTerminalReady]);
 
+  // Handle ResizeObserver based on active state
+  useEffect(() => {
+    if (term && terminalRef.current) {
+      // Clean up existing observer
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+        resizeObserverRef.current = null;
+      }
+
+      // Only create observer when terminal is active
+      if (isActive) {
+        const resizeObserver = new ResizeObserver(() => {
+          if (term && terminalRef.current) {
+            term.resize(80, 30);
+          }
+        });
+
+        resizeObserver.observe(terminalRef.current);
+        resizeObserverRef.current = resizeObserver;
+      }
+    }
+
+    // Cleanup function
+    return () => {
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+        resizeObserverRef.current = null;
+      }
+    };
+  }, [term, isActive]);
+
   useEffect(() => {
     if (term && isActive) {
       // Focus the terminal when it becomes active
@@ -79,6 +103,10 @@ export const TerminalComponent = ({
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+        resizeObserverRef.current = null;
+      }
       if (term) {
         term.dispose();
       }
@@ -86,6 +114,10 @@ export const TerminalComponent = ({
   }, [term]);
 
   const handleRemove = () => {
+    if (resizeObserverRef.current) {
+      resizeObserverRef.current.disconnect();
+      resizeObserverRef.current = null;
+    }
     if (term) {
       term.dispose();
     }
@@ -116,3 +148,5 @@ export const TerminalComponent = ({
     </div>
   );
 };
+
+export default TerminalComponent;

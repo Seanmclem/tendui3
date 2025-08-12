@@ -28,6 +28,19 @@ interface MainGuiState {
   handleTerminalData: (terminalId: string, data: string) => void;
 }
 
+// Helper function to get page display name
+const getPageDisplayName = (pageType: string): string => {
+  const pageNames: Record<string, string> = {
+    terminals: "Terminal",
+    files: "File Explorer",
+    git: "Git",
+    calculator: "Calculator",
+    converter: "Converter",
+    generator: "Generator",
+  };
+  return pageNames[pageType] || pageType;
+};
+
 export const useMainGuiStore = create<MainGuiState>((set, get) => ({
   menuOptions: ["Home", "package.json", "Vite", "Astro"],
   setMenuOptions: (update: string[]) => set({ menuOptions: update }),
@@ -43,9 +56,11 @@ export const useMainGuiStore = create<MainGuiState>((set, get) => ({
     const pageTerminals = terminalInstances.filter(
       (term) => term.pageType === pageType
     );
+
+    const pageDisplayName = getPageDisplayName(pageType);
     const newTerminal: TerminalInstance = {
       id: `terminal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name: `${pageType} Terminal ${pageTerminals.length + 1}`,
+      name: `${pageDisplayName} ${pageTerminals.length + 1}`,
       isActive: true,
       pageType,
       isReady: false,

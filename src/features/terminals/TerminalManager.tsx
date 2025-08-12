@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useMainGuiStore } from "../../stores/main-gui-store";
-import { TerminalComponent } from "./TerminalComponent";
+import { TerminalComponent } from "./index";
 
 interface TerminalManagerProps {
   pageType: string;
@@ -64,11 +64,26 @@ const TerminalManager = ({
     }
   };
 
+  // Get page display name
+  const getPageDisplayName = (pageType: string): string => {
+    const pageNames: Record<string, string> = {
+      terminals: "Terminals",
+      files: "File Explorer",
+      git: "Git Tools",
+      calculator: "Calculator",
+      converter: "Converter",
+      generator: "Generator",
+    };
+    return pageNames[pageType] || pageType;
+  };
+
   if (pageTerminals.length === 0) {
     return (
       <div className={`flex flex-col h-full ${className}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Terminals</h3>
+          <h3 className="text-lg font-medium text-gray-900">
+            {getPageDisplayName(pageType)} Terminals
+          </h3>
           <button
             onClick={handleAddTerminal}
             className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
@@ -78,7 +93,7 @@ const TerminalManager = ({
         </div>
         <div className="flex-1 flex items-center justify-center text-gray-500">
           <div className="text-center">
-            <p>No terminals yet</p>
+            <p>No {getPageDisplayName(pageType).toLowerCase()} terminals yet</p>
             <button
               onClick={handleAddTerminal}
               className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
