@@ -33,7 +33,6 @@ export interface SidebarState {
   items: AppItem[];
   categories: SidebarAppsCategory[];
   setActiveApp: (id: string) => void;
-  getActiveApp: () => AppItem | undefined;
 }
 
 // Sample data for the sidebar
@@ -186,10 +185,5 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
     }));
 
     set({ items: updatedItems });
-  },
-
-  getActiveApp: () => {
-    const { items } = get();
-    return items.find((item) => item.isActive === true) || undefined;
   },
 }));

@@ -147,22 +147,11 @@ const categories: SidebarAppsCategory[] = [
 export const useSidebarStore = create<SidebarState>((set, get) => ({
   items: sidebarData,
   categories,
-  activeAppId: "home",
-
   setActiveApp: (id: string) => {
-    set({ activeAppId: id });
-
-    // Update the active state of all items
     const updatedItems = get().items.map((item) => ({
       ...item,
-      isActive: item.id === id,
+      isActive: item.id === id ? true : false,
     }));
-
     set({ items: updatedItems });
-  },
-
-  getActiveApp: () => {
-    const { items, activeAppId: activeItemId } = get();
-    return items.find((item) => item.id === activeItemId) || null;
   },
 }));
