@@ -1,9 +1,9 @@
 import React from "react";
-import { useSidebarStore } from "../../stores/sidebarStore";
-import { SidebarItem, SidebarCategory } from "../../types/sidebar";
+import { useSidebarStore, AppItem, SidebarAppsCategory } from "../../types/sidebar";
 
-const SidebarItemComponent = ({ item }: { item: SidebarItem }) => {
-  const { setActiveItem, activeItemId } = useSidebarStore();
+const SidebarItemComponent = ({ item }: { item: AppItem }) => {
+  const { setActiveApp: setActiveItem, activeAppId: activeItemId } =
+    useSidebarStore();
   const isActive = activeItemId === item.id;
 
   return (
@@ -28,7 +28,7 @@ const SidebarItemComponent = ({ item }: { item: SidebarItem }) => {
 const SidebarCategoryComponent = ({
   category,
 }: {
-  category: SidebarCategory;
+  category: SidebarAppsCategory;
 }) => {
   if (category.items.length === 0) return null;
 

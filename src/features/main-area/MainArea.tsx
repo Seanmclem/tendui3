@@ -1,10 +1,10 @@
 import React from "react";
-import { useSidebarStore } from "../../stores/sidebarStore";
-import { Button, Card, Input, Badge } from "../../components";
+import { useSidebarStore } from "../../types/sidebar";
+import { Card, Badge } from "../../components";
 import { TerminalManager } from "../terminals";
 
 const MainArea = () => {
-  const { activeItemId, getActiveItem } = useSidebarStore();
+  const { getActiveApp: getActiveItem } = useSidebarStore();
   const activeItem = getActiveItem();
 
   if (!activeItem) {
@@ -21,17 +21,7 @@ const MainArea = () => {
 
   const { content } = activeItem;
 
-  // Pages that should have terminals
-  const pagesWithTerminals = [
-    "terminals",
-    "files",
-    "git",
-    "calculator",
-    "converter",
-    "generator",
-  ];
-
-  if (pagesWithTerminals.includes(activeItem.id)) {
+  if (activeItem.hasTerminals) {
     return (
       <div className="min-h-full h-full">
         <div className="p-4">

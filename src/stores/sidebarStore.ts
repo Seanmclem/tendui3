@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { SidebarItem, SidebarCategory, SidebarState } from "../types/sidebar";
+import { AppItem, SidebarAppsCategory, SidebarState } from "../types/sidebar";
 
 // Sample data for the sidebar
-const sidebarData: SidebarItem[] = [
+const sidebarData: AppItem[] = [
   // Home category
   {
     id: "home",
@@ -14,6 +14,8 @@ const sidebarData: SidebarItem[] = [
       description: "Your development toolkit with reusable components!",
       className: "text-center",
     },
+    terminals: [],
+    activeTerminalId: null,
   },
 
   // Development category
@@ -26,6 +28,8 @@ const sidebarData: SidebarItem[] = [
       title: "💻 Terminals",
       description: "Terminal management coming soon...",
     },
+    terminals: [],
+    activeTerminalId: null,
   },
   {
     id: "files",
@@ -36,6 +40,8 @@ const sidebarData: SidebarItem[] = [
       title: "📁 File Explorer",
       description: "File explorer coming soon...",
     },
+    terminals: [],
+    activeTerminalId: null,
   },
   {
     id: "git",
@@ -46,6 +52,8 @@ const sidebarData: SidebarItem[] = [
       title: "🔧 Git Tools",
       description: "Git integration coming soon...",
     },
+    terminals: [],
+    activeTerminalId: null,
   },
 
   // Tools category
@@ -58,6 +66,8 @@ const sidebarData: SidebarItem[] = [
       title: "🧮 Calculator",
       description: "Calculator tool coming soon...",
     },
+    terminals: [],
+    activeTerminalId: null,
   },
   {
     id: "converter",
@@ -68,6 +78,8 @@ const sidebarData: SidebarItem[] = [
       title: "🔄 Converter",
       description: "Conversion tools coming soon...",
     },
+    terminals: [],
+    activeTerminalId: null,
   },
   {
     id: "generator",
@@ -78,6 +90,8 @@ const sidebarData: SidebarItem[] = [
       title: "⚡ Generator",
       description: "Data generators coming soon...",
     },
+    terminals: [],
+    activeTerminalId: null,
   },
 
   // Settings category
@@ -90,6 +104,8 @@ const sidebarData: SidebarItem[] = [
       title: "⚙️ Preferences",
       description: "Settings and preferences coming soon...",
     },
+    terminals: [],
+    activeTerminalId: null,
   },
   {
     id: "about",
@@ -100,10 +116,12 @@ const sidebarData: SidebarItem[] = [
       title: "ℹ️ About TendUI",
       description: "Version 1.0.0 - Development Toolkit",
     },
+    terminals: [],
+    activeTerminalId: null,
   },
 ];
 
-const categories: SidebarCategory[] = [
+const categories: SidebarAppsCategory[] = [
   {
     id: "home",
     label: "",
@@ -129,10 +147,10 @@ const categories: SidebarCategory[] = [
 export const useSidebarStore = create<SidebarState>((set, get) => ({
   items: sidebarData,
   categories,
-  activeItemId: "home",
+  activeAppId: "home",
 
-  setActiveItem: (id: string) => {
-    set({ activeItemId: id });
+  setActiveApp: (id: string) => {
+    set({ activeAppId: id });
 
     // Update the active state of all items
     const updatedItems = get().items.map((item) => ({
@@ -143,8 +161,8 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
     set({ items: updatedItems });
   },
 
-  getActiveItem: () => {
-    const { items, activeItemId } = get();
+  getActiveApp: () => {
+    const { items, activeAppId: activeItemId } = get();
     return items.find((item) => item.id === activeItemId) || null;
   },
 }));
