@@ -1,10 +1,18 @@
 import React from "react";
-import { useSidebarStore, AppItem, SidebarAppsCategory } from "../../types/sidebar";
+import {
+  useSidebarStore,
+  AppItem,
+  SidebarAppsCategory,
+} from "../../types/sidebar";
 
-const SidebarItemComponent = ({ item }: { item: AppItem }) => {
-  const { setActiveApp: setActiveItem, activeAppId: activeItemId } =
-    useSidebarStore();
-  const isActive = activeItemId === item.id;
+const SidebarItemComponent = ({
+  id,
+  isActive,
+  isDisabled,
+  icon,
+  label,
+}: AppItem) => {
+  const { setActiveApp } = useSidebarStore();
 
   return (
     <div
@@ -15,12 +23,12 @@ const SidebarItemComponent = ({ item }: { item: AppItem }) => {
             ? "bg-blue-100 border-r-2 border-blue-500 text-blue-700"
             : "text-gray-700 hover:bg-gray-100"
         }
-        ${item.isDisabled ? "opacity-50 cursor-not-allowed" : ""}
+        ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}
       `}
-      onClick={() => !item.isDisabled && setActiveItem(item.id)}
+      onClick={() => !isDisabled && setActiveApp(id)}
     >
-      <span className="text-lg mr-3 w-6 text-center">{item.icon}</span>
-      <span className="font-medium">{item.label}</span>
+      <span className="text-lg mr-3 w-6 text-center">{icon}</span>
+      <span className="font-medium">{label}</span>
     </div>
   );
 };
@@ -40,7 +48,7 @@ const SidebarCategoryComponent = ({
         </div>
       )}
       {category.items.map((item) => (
-        <SidebarItemComponent key={item.id} item={item} />
+        <SidebarItemComponent key={item.id} {...item} />
       ))}
     </div>
   );

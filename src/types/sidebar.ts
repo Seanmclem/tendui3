@@ -32,7 +32,6 @@ export interface SidebarAppsCategory {
 export interface SidebarState {
   items: AppItem[];
   categories: SidebarAppsCategory[];
-  activeAppId: string | undefined;
   setActiveApp: (id: string) => void;
   getActiveApp: () => AppItem | undefined;
 }
@@ -45,6 +44,7 @@ const sidebarData: AppItem[] = [
     label: "Home",
     icon: "🏠",
     category: "home",
+    isActive: true,
     content: {
       title: "🚀 Welcome to TendUI",
       description: "Your development toolkit with reusable components!",
@@ -177,11 +177,8 @@ const categories: SidebarAppsCategory[] = [
 export const useSidebarStore = create<SidebarState>((set, get) => ({
   items: sidebarData,
   categories,
-  activeAppId: "home",
 
   setActiveApp: (id: string) => {
-    set({ activeAppId: id });
-
     // Update the active state of all items
     const updatedItems = get().items.map((item) => ({
       ...item,
@@ -192,7 +189,7 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
   },
 
   getActiveApp: () => {
-    const { items, activeAppId: activeItemId } = get();
-    return items.find((item) => item.id === activeItemId) || undefined;
+    const { items } = get();
+    return items.find((item) => item.isActive === true) || undefined;
   },
 }));
