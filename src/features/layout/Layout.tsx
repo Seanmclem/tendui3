@@ -1,11 +1,11 @@
 import React from "react";
-import Sidebar from "../sidebar/Sidebar";
+import { Sidebar } from "../sidebar/Sidebar";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+export const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
@@ -13,5 +13,3 @@ const Layout = ({ children }: LayoutProps) => {
     </div>
   );
 };
-
-export default Layout;

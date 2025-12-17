@@ -9,7 +9,7 @@ interface InputProps {
   className?: string;
 }
 
-const Input = ({
+export const Input = ({
   type = "text",
   placeholder,
   value = "",
@@ -49,5 +49,3 @@ const Input = ({
     </div>
   );
 };
-
-export default Input;

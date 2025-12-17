@@ -7,7 +7,7 @@ interface CardProps {
   padding?: "sm" | "md" | "lg";
 }
 
-const Card = ({
+export const Card = ({
   children,
   title,
   className = "",
@@ -33,5 +33,3 @@ const Card = ({
     </div>
   );
 };
-
-export default Card;

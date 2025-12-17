@@ -1,1 +1,1 @@
-export { default as MainArea } from "./MainArea";
+export { MainArea } from "./MainArea";

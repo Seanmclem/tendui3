@@ -1,9 +1,9 @@
 import React from "react";
-import { useSidebarStore } from "../../types/sidebar";
+import { useAppStateStore } from "../../stores/appStateStore";
 import { TerminalManager } from "../terminals";
 
-const MainArea = () => {
-  const { items } = useSidebarStore();
+export const MainArea = () => {
+  const items = useAppStateStore((state) => state.items);
 
   return (
     <>
@@ -37,5 +37,3 @@ const MainArea = () => {
     </>
   );
 };
-
-export default MainArea;

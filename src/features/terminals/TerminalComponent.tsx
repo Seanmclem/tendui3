@@ -10,7 +10,7 @@ interface TerminalComponentProps {
   style?: React.CSSProperties;
 }
 
-const TerminalComponent = ({
+export const TerminalComponent = ({
   terminalId,
   isActive,
   onRemove,
@@ -148,5 +148,3 @@ const TerminalComponent = ({
     </div>
   );
 };
-
-export default TerminalComponent;

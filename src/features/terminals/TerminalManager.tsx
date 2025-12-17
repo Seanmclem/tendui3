@@ -7,7 +7,7 @@ interface TerminalManagerProps {
   className?: string;
 }
 
-const TerminalManager = ({
+export const TerminalManager = ({
   pageType,
   className = "",
 }: TerminalManagerProps) => {
@@ -163,5 +163,3 @@ const TerminalManager = ({
     </div>
   );
 };
-
-export default TerminalManager;

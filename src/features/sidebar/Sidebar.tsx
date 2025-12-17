@@ -1,9 +1,8 @@
-import React from "react";
 import {
-  useSidebarStore,
+  useAppStateStore,
   AppItem,
-  SidebarAppsCategory,
-} from "../../types/sidebar";
+  SidebarItem,
+} from "../../stores/appStateStore";
 
 const SidebarItemComponent = ({
   id,
@@ -11,8 +10,8 @@ const SidebarItemComponent = ({
   isDisabled,
   icon,
   label,
-}: AppItem) => {
-  const { setActiveApp } = useSidebarStore();
+}: SidebarItem) => {
+  const setActiveApp = useAppStateStore((state) => state.setActiveApp);
 
   return (
     <div
@@ -33,29 +32,8 @@ const SidebarItemComponent = ({
   );
 };
 
-const SidebarCategoryComponent = ({
-  category,
-}: {
-  category: SidebarAppsCategory;
-}) => {
-  if (category.items.length === 0) return null;
-
-  return (
-    <div className="mb-2">
-      {category.label && (
-        <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          {category.label}
-        </div>
-      )}
-      {category.items.map((item) => (
-        <SidebarItemComponent key={item.id} {...item} />
-      ))}
-    </div>
-  );
-};
-
-const Sidebar = () => {
-  const { categories } = useSidebarStore();
+export const Sidebar = () => {
+  const items = useAppStateStore((state) => state.items);
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 h-screen flex flex-col flex-shrink-0">
@@ -67,8 +45,15 @@ const Sidebar = () => {
 
       {/* Scrollable Navigation */}
       <nav className="flex-1 py-4 overflow-y-auto">
-        {categories.map((category) => (
-          <SidebarCategoryComponent key={category.id} category={category} />
+        {items.map(({ id, isActive, isDisabled, icon, label }: AppItem) => (
+          <SidebarItemComponent
+            key={id}
+            id={id}
+            isActive={isActive}
+            isDisabled={isDisabled}
+            icon={icon}
+            label={label}
+          />
         ))}
       </nav>
 
@@ -79,5 +64,3 @@ const Sidebar = () => {
     </div>
   );
 };
-
-export default Sidebar;
