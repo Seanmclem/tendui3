@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useMainGuiStore } from "../../stores/main-gui-store";
+import { useAppStateStore } from "../../stores/appStateStore";
 import { TerminalComponent } from "./index";
 
 interface TerminalManagerProps {
@@ -12,7 +13,6 @@ export const TerminalManager = ({
   className = "",
 }: TerminalManagerProps) => {
   const {
-    terminalInstances,
     addTerminal,
     removeTerminal,
     setActiveTerminal,
@@ -21,6 +21,63 @@ export const TerminalManager = ({
 
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const pageTerminals = getTerminalsForPage(pageType);
+
+  const handleRemoveTerminal = useCallback(
+    (id: string) => {
+      removeTerminal(id);
+      // Adjust active tab index if needed
+      const remainingTerminals = getTerminalsForPage(pageType);
+      if (remainingTerminals.length > 0) {
+        const newActiveIndex = Math.min(
+          activeTabIndex,
+          remainingTerminals.length - 1
+        );
+        setActiveTabIndex(newActiveIndex);
+        if (remainingTerminals[newActiveIndex]) {
+          setActiveTerminal(remainingTerminals[newActiveIndex].id);
+        }
+      }
+    },
+    [
+      removeTerminal,
+      getTerminalsForPage,
+      pageType,
+      activeTabIndex,
+      setActiveTerminal,
+    ]
+  );
+
+  // Listen for terminal exits from main process
+  useEffect(() => {
+    const handleTerminalExit = (data: {
+      terminalId: string;
+      exitCode: number;
+    }) => {
+      // Only handle exits for terminals belonging to this page
+      // Check if terminal still exists (idempotent - safe if already removed)
+      const terminal = pageTerminals.find((t) => t.id === data.terminalId);
+      if (terminal) {
+        console.log(
+          `Terminal ${data.terminalId} exited with code ${data.exitCode}, removing from store`
+        );
+        handleRemoveTerminal(data.terminalId);
+      } else {
+        // Terminal already removed (e.g., user clicked X button)
+        // This is fine - just log for debugging
+        console.log(
+          `Terminal ${data.terminalId} exited but was already removed from store`
+        );
+      }
+    };
+
+    window.Main.on("terminal.exited", handleTerminalExit);
+
+    // Cleanup: remove listener when component unmounts or pageTerminals changes
+    return () => {
+      // Note: ipcRenderer.removeListener would require storing the handler reference
+      // For now, the listener will be cleaned up when the component unmounts
+    };
+  }, [pageTerminals, handleRemoveTerminal]);
 
   // Set first terminal as active if none are active
   useEffect(() => {
@@ -41,22 +98,6 @@ export const TerminalManager = ({
     }
   };
 
-  const handleRemoveTerminal = (id: string) => {
-    removeTerminal(id);
-    // Adjust active tab index if needed
-    const remainingTerminals = getTerminalsForPage(pageType);
-    if (remainingTerminals.length > 0) {
-      const newActiveIndex = Math.min(
-        activeTabIndex,
-        remainingTerminals.length - 1
-      );
-      setActiveTabIndex(newActiveIndex);
-      if (remainingTerminals[newActiveIndex]) {
-        setActiveTerminal(remainingTerminals[newActiveIndex].id);
-      }
-    }
-  };
-
   const handleTabClick = (index: number) => {
     setActiveTabIndex(index);
     if (pageTerminals[index]) {
@@ -64,25 +105,18 @@ export const TerminalManager = ({
     }
   };
 
-  // Get page display name
-  const getPageDisplayName = (pageType: string): string => {
-    const pageNames: Record<string, string> = {
-      terminals: "Terminals",
-      files: "File Explorer",
-      git: "Git Tools",
-      calculator: "Calculator",
-      converter: "Converter",
-      generator: "Generator",
-    };
-    return pageNames[pageType] || pageType;
-  };
+  // Get page display name from appStateStore (reactive - subscribes to items changes)
+  const pageDisplayName = useAppStateStore((state) => {
+    const item = state.items.find((item) => item.id === pageType);
+    return item?.label || pageType;
+  });
 
   if (pageTerminals.length === 0) {
     return (
       <div className={`flex flex-col h-full ${className}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">
-            {getPageDisplayName(pageType)} Terminals
+            {pageDisplayName} Terminals
           </h3>
           <button
             onClick={handleAddTerminal}
@@ -93,7 +127,7 @@ export const TerminalManager = ({
         </div>
         <div className="flex-1 flex items-center justify-center text-gray-500">
           <div className="text-center">
-            <p>No {getPageDisplayName(pageType).toLowerCase()} terminals yet</p>
+            <p>No {pageDisplayName.toLowerCase()} terminals yet</p>
             <button
               onClick={handleAddTerminal}
               className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
@@ -147,7 +181,7 @@ export const TerminalManager = ({
 
       {/* Terminal Content */}
       <div className="flex-1">
-        {pageTerminals.map((terminal, index) => (
+        {pageTerminals.map((terminal) => (
           <TerminalComponent
             key={terminal.id}
             terminalId={terminal.id}

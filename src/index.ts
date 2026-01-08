@@ -111,7 +111,18 @@ ipcMain.on("terminal.create", (_event: IpcMainEvent, terminalId: string) => {
   // Handle process exit
   ptyProcess.onExit(({ exitCode }: { exitCode: number }) => {
     console.log(`Terminal ${terminalId} exited with code:`, exitCode);
+    // Check if terminal still exists in Map - if not, it was manually removed
+    // and we don't need to notify the renderer (it already knows)
+    const stillExists = terminalProcesses.has(terminalId);
     terminalProcesses.delete(terminalId);
+
+    // Only notify renderer if this was an unexpected exit (not manually removed)
+    if (stillExists) {
+      mainWindow?.webContents?.send("terminal.exited", {
+        terminalId,
+        exitCode,
+      });
+    }
   });
 });
 
@@ -120,8 +131,10 @@ ipcMain.on("terminal.remove", (_event: IpcMainEvent, terminalId: string) => {
 
   const ptyProcess = terminalProcesses.get(terminalId);
   if (ptyProcess) {
-    ptyProcess.kill();
+    // Delete from Map BEFORE killing to prevent onExit from sending terminal.exited
+    // The renderer already knows about this removal (it initiated it)
     terminalProcesses.delete(terminalId);
+    ptyProcess.kill();
   }
 });
 
@@ -205,13 +218,16 @@ ipcMain.on(
   }
 );
 
-ipcMain.on("saveFile", async (event: IpcMainEvent, payload: any) => {
-  try {
-    const { path, contents } = payload;
-    await fs.promises.writeFile(path, contents.toString());
-    event.sender.send("saveFileResponse", "success!");
-  } catch (error) {
-    console.error("Error saving file:", error);
-    event.sender.send("saveFileResponse", "Error saving file");
+ipcMain.on(
+  "saveFile",
+  async (event: IpcMainEvent, payload: { path: string; contents: string }) => {
+    try {
+      const { path, contents } = payload;
+      await fs.promises.writeFile(path, contents.toString());
+      event.sender.send("saveFileResponse", "success!");
+    } catch (error) {
+      console.error("Error saving file:", error);
+      event.sender.send("saveFileResponse", "Error saving file");
+    }
   }
-});
+);

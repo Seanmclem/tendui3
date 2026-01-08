@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useAppStateStore } from "./appStateStore";
 
 interface TerminalInstance {
   id: string;
@@ -28,17 +29,12 @@ interface MainGuiState {
   handleTerminalData: (terminalId: string, data: string) => void;
 }
 
-// Helper function to get page display name
+// Helper function to get page display name from appStateStore
+// Note: This reads the current state at call time (not reactive)
+// This is fine since it's only used when creating terminals, and terminal names are stored once
 const getPageDisplayName = (pageType: string): string => {
-  const pageNames: Record<string, string> = {
-    terminals: "Terminal",
-    files: "File Explorer",
-    git: "Git",
-    calculator: "Calculator",
-    converter: "Converter",
-    generator: "Generator",
-  };
-  return pageNames[pageType] || pageType;
+  const getLabelById = useAppStateStore.getState().getLabelById;
+  return getLabelById(pageType) || pageType;
 };
 
 export const useMainGuiStore = create<MainGuiState>((set, get) => ({

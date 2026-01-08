@@ -34,6 +34,7 @@ interface Terminal {
 export interface SidebarState {
   items: AppItem[];
   setActiveApp: (id: string) => void;
+  getLabelById: (id: string) => string | undefined;
 }
 
 // Sample data for the sidebar
@@ -165,5 +166,10 @@ export const useAppStateStore = create<SidebarState>((set, get) => ({
     }));
 
     set({ items: updatedItems });
+  },
+
+  getLabelById: (id: string) => {
+    const item = get().items.find((item) => item.id === id);
+    return item?.label;
   },
 }));
