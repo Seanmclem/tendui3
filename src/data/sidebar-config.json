@@ -1,0 +1,91 @@
+[
+  {
+    "id": "home",
+    "label": "Home123",
+    "icon": "🏠",
+    "isActive": true,
+    "content": {
+      "title": "🚀 Welcome to TendUI",
+      "description": "Your development toolkit with reusable components!",
+      "className": "text-center"
+    }
+  },
+  {
+    "id": "terminals",
+    "label": "Terminals",
+    "icon": "💻",
+    "hasTerminals": true,
+    "content": {
+      "title": "💻 Terminals",
+      "description": "Terminal management coming soon..."
+    }
+  },
+  {
+    "id": "files",
+    "label": "File Explorer",
+    "icon": "📁",
+    "hasTerminals": true,
+    "content": {
+      "title": "📁 File Explorer",
+      "description": "File explorer coming soon..."
+    }
+  },
+  {
+    "id": "git",
+    "label": "Git",
+    "icon": "🔧",
+    "hasTerminals": true,
+    "content": {
+      "title": "🔧 Git Tools",
+      "description": "Git integration coming soon..."
+    }
+  },
+  {
+    "id": "calculator",
+    "label": "Calculator",
+    "icon": "🧮",
+    "hasTerminals": true,
+    "content": {
+      "title": "🧮 Calculator",
+      "description": "Calculator tool coming soon..."
+    }
+  },
+  {
+    "id": "converter",
+    "label": "Converter",
+    "icon": "🔄",
+    "hasTerminals": true,
+    "content": {
+      "title": "🔄 Converter",
+      "description": "Conversion tools coming soon..."
+    }
+  },
+  {
+    "id": "generator",
+    "label": "Generator",
+    "icon": "⚡",
+    "hasTerminals": true,
+    "content": {
+      "title": "⚡ Generator",
+      "description": "Data generators coming soon..."
+    }
+  },
+  {
+    "id": "preferences",
+    "label": "Preferences",
+    "icon": "⚙️",
+    "content": {
+      "title": "⚙️ Preferences",
+      "description": "Settings and preferences coming soon..."
+    }
+  },
+  {
+    "id": "about",
+    "label": "About",
+    "icon": "ℹ️",
+    "content": {
+      "title": "ℹ️ About TendUI",
+      "description": "Version 1.0.0 - Development Toolkit"
+    }
+  }
+]

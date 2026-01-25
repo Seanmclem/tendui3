@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, IpcMainEvent, dialog } from "electron";
 import fs from "fs";
 import os from "os";
+import path from "path";
 
 // Use require for node-pty to avoid module loading issues
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -228,6 +229,87 @@ ipcMain.on(
     } catch (error) {
       console.error("Error saving file:", error);
       event.sender.send("saveFileResponse", "Error saving file");
+    }
+  }
+);
+
+// Sidebar configuration management
+const getSidebarConfigPath = (): string => {
+  // Store config in user data directory (writable, persists across updates)
+  const userDataPath = app.getPath("userData");
+  return path.join(userDataPath, "sidebar-config.json");
+};
+
+const getDefaultSidebarConfigPath = (): string => {
+  // Default config from app bundle (read-only)
+  if (app.isPackaged) {
+    return path.join(
+      process.resourcesPath,
+      "app",
+      "src",
+      "data",
+      "sidebar-config.json"
+    );
+  }
+  // In development, __dirname points to .webpack/main, so go up to project root
+  const projectRoot = path.resolve(__dirname, "../../");
+  return path.join(projectRoot, "src", "data", "sidebar-config.json");
+};
+
+ipcMain.on("sidebarConfig.load", async (event: IpcMainEvent) => {
+  try {
+    const configPath = getSidebarConfigPath();
+    let data: string;
+
+    // If config doesn't exist, copy from default
+    try {
+      data = await fs.promises.readFile(configPath, "utf-8");
+    } catch {
+      // Config doesn't exist, copy from default
+      const defaultPath = getDefaultSidebarConfigPath();
+      try {
+        data = await fs.promises.readFile(defaultPath, "utf-8");
+        // Copy to user data directory for future edits
+        const userDataDir = path.dirname(configPath);
+        await fs.promises.mkdir(userDataDir, { recursive: true });
+        await fs.promises.writeFile(configPath, data, "utf-8");
+      } catch (defaultError) {
+        console.error("Error loading default sidebar config:", defaultError);
+        event.sender.send("sidebarConfig.loaded", []);
+        return;
+      }
+    }
+
+    const items = JSON.parse(data);
+    event.sender.send("sidebarConfig.loaded", items);
+  } catch (error) {
+    console.error("Error loading sidebar config:", error);
+    // Return empty array on error
+    event.sender.send("sidebarConfig.loaded", []);
+  }
+});
+
+ipcMain.on(
+  "sidebarConfig.save",
+  async (event: IpcMainEvent, items: unknown[]) => {
+    try {
+      const configPath = getSidebarConfigPath();
+      // Ensure directory exists
+      const dir = path.dirname(configPath);
+      await fs.promises.mkdir(dir, { recursive: true });
+      // Write file
+      await fs.promises.writeFile(
+        configPath,
+        JSON.stringify(items, null, 2),
+        "utf-8"
+      );
+      event.sender.send("sidebarConfig.saved", { success: true });
+    } catch (error) {
+      console.error("Error saving sidebar config:", error);
+      event.sender.send("sidebarConfig.saved", {
+        success: false,
+        error: String(error),
+      });
     }
   }
 );

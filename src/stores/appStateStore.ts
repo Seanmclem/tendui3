@@ -12,8 +12,6 @@ export interface AppItem {
     description: string;
     className?: string;
   };
-  terminals?: Terminal[];
-  activeTerminalId?: string;
 }
 
 export interface SidebarItem {
@@ -25,138 +23,53 @@ export interface SidebarItem {
   hasTerminals?: boolean;
 }
 
-interface Terminal {
-  id: string;
-  name: string;
-  pageType: string;
-}
-
 export interface SidebarState {
   items: AppItem[];
+  isLoading: boolean;
   setActiveApp: (id: string) => void;
   getLabelById: (id: string) => string | undefined;
+  createItem: (item: Omit<AppItem, "isActive">) => Promise<void>;
+  updateItem: (id: string, updates: Partial<AppItem>) => Promise<void>;
+  removeItem: (id: string) => Promise<void>;
+  loadItems: () => Promise<void>;
 }
 
-// Sample data for the sidebar
-const sidebarData: AppItem[] = [
-  // Home category
-  {
-    id: "home",
-    label: "Home123",
-    icon: "🏠",
-    isActive: true,
-    content: {
-      title: "🚀 Welcome to TendUI",
-      description: "Your development toolkit with reusable components!",
-      className: "text-center",
-    },
-    terminals: [],
-    activeTerminalId: null,
-  },
+// Helper function to save items to file via IPC
+const saveItemsToFile = async (items: AppItem[]): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const handleSaved = (response: { success: boolean; error?: string }) => {
+      window.Main.removeListener("sidebarConfig.saved", handleSaved);
+      if (response.success) {
+        resolve(true);
+      } else {
+        console.error("Error saving sidebar config:", response.error);
+        resolve(false);
+      }
+    };
 
-  // Development category
-  {
-    id: "terminals",
-    label: "Terminals",
-    icon: "💻",
-    hasTerminals: true,
-    content: {
-      title: "💻 Terminals",
-      description: "Terminal management coming soon...",
-    },
-    terminals: [],
-    activeTerminalId: null,
-  },
-  {
-    id: "files",
-    label: "File Explorer",
-    icon: "📁",
-    hasTerminals: true,
-    content: {
-      title: "📁 File Explorer",
-      description: "File explorer coming soon...",
-    },
-    terminals: [],
-    activeTerminalId: null,
-  },
-  {
-    id: "git",
-    label: "Git",
-    icon: "🔧",
-    hasTerminals: true,
-    content: {
-      title: "🔧 Git Tools",
-      description: "Git integration coming soon...",
-    },
-    terminals: [],
-    activeTerminalId: null,
-  },
-
-  // Tools category
-  {
-    id: "calculator",
-    label: "Calculator",
-    icon: "🧮",
-    hasTerminals: true,
-    content: {
-      title: "🧮 Calculator",
-      description: "Calculator tool coming soon...",
-    },
-    terminals: [],
-    activeTerminalId: null,
-  },
-  {
-    id: "converter",
-    label: "Converter",
-    icon: "🔄",
-    hasTerminals: true,
-    content: {
-      title: "🔄 Converter",
-      description: "Conversion tools coming soon...",
-    },
-    terminals: [],
-    activeTerminalId: null,
-  },
-  {
-    id: "generator",
-    label: "Generator",
-    icon: "⚡",
-    hasTerminals: true,
-    content: {
-      title: "⚡ Generator",
-      description: "Data generators coming soon...",
-    },
-    terminals: [],
-    activeTerminalId: null,
-  },
-
-  // Settings category
-  {
-    id: "preferences",
-    label: "Preferences",
-    icon: "⚙️",
-    content: {
-      title: "⚙️ Preferences",
-      description: "Settings and preferences coming soon...",
-    },
-    terminals: [],
-    activeTerminalId: null,
-  },
-  {
-    id: "about",
-    label: "About",
-    icon: "ℹ️",
-    content: {
-      title: "ℹ️ About TendUI",
-      description: "Version 1.0.0 - Development Toolkit",
-    },
-    terminals: [],
-    activeTerminalId: null,
-  },
-];
+    window.Main.on("sidebarConfig.saved", handleSaved);
+    window.Main.saveSidebarConfig(items);
+  });
+};
 
 export const useAppStateStore = create<SidebarState>((set, get) => ({
-  items: sidebarData,
+  items: [],
+  isLoading: true,
+
+  loadItems: async () => {
+    return new Promise<void>((resolve) => {
+      set({ isLoading: true });
+
+      const handleLoaded = (items: AppItem[]) => {
+        window.Main.removeListener("sidebarConfig.loaded", handleLoaded);
+        set({ items, isLoading: false });
+        resolve();
+      };
+
+      window.Main.on("sidebarConfig.loaded", handleLoaded);
+      window.Main.loadSidebarConfig();
+    });
+  },
 
   setActiveApp: (id: string) => {
     // Update the active state of all items
@@ -166,10 +79,35 @@ export const useAppStateStore = create<SidebarState>((set, get) => ({
     }));
 
     set({ items: updatedItems });
+    // Note: We don't save on active state change as it's temporary UI state
   },
 
   getLabelById: (id: string) => {
     const item = get().items.find((item) => item.id === id);
     return item?.label;
+  },
+
+  createItem: async (item: Omit<AppItem, "isActive">) => {
+    const newItem: AppItem = {
+      ...item,
+      isActive: false,
+    };
+    const updatedItems = [...get().items, newItem];
+    set({ items: updatedItems });
+    await saveItemsToFile(updatedItems);
+  },
+
+  updateItem: async (id: string, updates: Partial<AppItem>) => {
+    const updatedItems = get().items.map((item) =>
+      item.id === id ? { ...item, ...updates } : item
+    );
+    set({ items: updatedItems });
+    await saveItemsToFile(updatedItems);
+  },
+
+  removeItem: async (id: string) => {
+    const updatedItems = get().items.filter((item) => item.id !== id);
+    set({ items: updatedItems });
+    await saveItemsToFile(updatedItems);
   },
 }));

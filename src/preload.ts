@@ -35,6 +35,15 @@ const api = {
     ipcRenderer.send("saveFile", payload);
   },
 
+  // Sidebar configuration
+  loadSidebarConfig: () => {
+    ipcRenderer.send("sidebarConfig.load");
+  },
+
+  saveSidebarConfig: (items: unknown[]) => {
+    ipcRenderer.send("sidebarConfig.save", items);
+  },
+
   goGetFolderOpenDialog: (payload?: any) => {
     console.log("goGetFolderOpenDialog -> IPC", payload);
     ipcRenderer.send("goGetFolderOpenDialog", payload);
@@ -71,6 +80,13 @@ const api = {
    */
   on: (channel: string, callback: (data: any) => void) => {
     ipcRenderer.on(channel, (_, data) => callback(data));
+  },
+
+  /**
+   * Remove a specific event listener
+   */
+  removeListener: (channel: string, callback: (data: any) => void) => {
+    ipcRenderer.removeListener(channel, callback);
   },
 };
 
